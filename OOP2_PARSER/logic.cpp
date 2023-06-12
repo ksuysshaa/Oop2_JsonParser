@@ -18,15 +18,8 @@ std::string FileWorker::getTextFile()
     return data;
 }
 
-JsonChecker::JsonChecker() {
-    this->stringNum = 0;
-    this->posInFile = 1;
-    this->posInLine = 1;
-    this->containError = true;
-    errorMessage = "File is correct!";
-}
-
-void JsonChecker::checkJson() {
+void JsonChecker::checkJson()
+{
     skipEmpty(fileText);
     if (fileText[stringNum] == '"')
         checkString(fileText);
@@ -39,23 +32,23 @@ void JsonChecker::checkJson() {
     else if (correctSymbols.find(fileText[stringNum]) != std::string::npos)
         checkNumber(fileText);
     else {
-        containError = false;
+        containError = true;
         throw JsonError("incorrect elements", "correct elements", posInFile, posInLine);
     }
-
-    if (containError == true) {
+    if (containError == false) {
         skipEmpty(fileText);
         if (fileText[stringNum])
             throw JsonError("more than 1 root element", "EOF", posInFile, posInLine);
     }
 }
 
-void JsonChecker::checkString(const std::string& fileText) {
+void JsonChecker::checkString(const std::string& fileText)
+{
     stringNum++;
     posInLine++;
     while (fileText[stringNum] != '"') {
         if (!fileText[stringNum] || fileText[stringNum] == '\n') {
-            containError = false;
+            containError = true;
             throw JsonError(STRING_ERROR, "\"", posInFile, posInLine);
             break;
         }
@@ -66,7 +59,8 @@ void JsonChecker::checkString(const std::string& fileText) {
     posInLine++;
 }
 
-void JsonChecker::checkSpecialType(const std::string& fileText) {
+void JsonChecker::checkSpecialType(const std::string& fileText)
+{
     std::string expected;
     if (fileText[stringNum] == 't')
         expected = "true";
@@ -76,7 +70,7 @@ void JsonChecker::checkSpecialType(const std::string& fileText) {
         expected = "null";
     for (int i = 0; expected[i]; i++) {
         if (expected[i] != fileText[stringNum]) {
-            containError = false;
+            containError = true;
             throw JsonError(SPECIAL_TYPE_ERROR, expected, posInFile, posInLine);
             break;
         }
@@ -87,21 +81,22 @@ void JsonChecker::checkSpecialType(const std::string& fileText) {
     posInLine++;
 }
 
-void JsonChecker::checkNumber(const std::string& fileText) {
+void JsonChecker::checkNumber(const std::string& fileText)
+{
     int pointsCounter = 0;
     int minusCounter = 0;
     while (correctSymbols.find(fileText[stringNum]) != std::string::npos) {
         if (fileText[stringNum] == '.')
             pointsCounter++;
         if (pointsCounter > 1) {
-            containError = false;
+            containError = true;
             throw JsonError("incorrect number", "number with one point", posInFile, posInLine);
             break;
         }
         if (fileText[stringNum] == '-')
             minusCounter++;
         if (minusCounter > 1) {
-            containError = false;
+            containError = true;
             throw JsonError("incorrect number", "number with one minus", posInFile, posInLine);
             break;
         }
@@ -112,28 +107,28 @@ void JsonChecker::checkNumber(const std::string& fileText) {
 
 void JsonChecker::checkObject(const std::string& fileText)
 {
-    if (containError != false) {
+    if (containError == false) {
         stringNum++;
         skipEmpty(fileText);
         ExpectedPart part;
         part.current = part.key;
-        if (fileText[stringNum] != '}'){
+        if (fileText[stringNum] != '}')
             objectError(fileText, part);
-        } else {
-            stringNum++;
-            posInLine++;
-        }
     }
+    if (containError == true)
+        return;
+    stringNum++;
+    posInLine++;
 }
 
 void JsonChecker::objectError(const std::string& fileText, ExpectedPart part)
 {
-    while (fileText[stringNum] && containError == true) {
+    while (fileText[stringNum] && containError == false) {
         skipEmpty(fileText);
         if (part.current == part.key && fileText[stringNum] == '"') {
             checkString(fileText); part.current = part.colon;
         } else if (part.current == part.colon && fileText[stringNum] == ':') {
-            part.current == part.value; stringNum++; posInLine++;
+            part.current = part.value; stringNum++; posInLine++;
         } else if (part.current == part.value && fileText[stringNum] == '"') {
             checkString(fileText); part.current = part.endOfLine;
         } else if (part.current == part.value && correctSymbols.find(fileText[stringNum]) != std::string::npos) {
@@ -145,20 +140,20 @@ void JsonChecker::objectError(const std::string& fileText, ExpectedPart part)
         } else if (part.current == part.value && fileText[stringNum] == '[') {
             checkArray(fileText); part.current = part.endOfLine;
         } else if (part.current == part.endOfLine && fileText[stringNum] == ',') {
-            stringNum++; posInLine ++; part.current = part.key;
+            stringNum++; posInLine++; part.current = part.key;
         } else if (part.current == part.endOfLine && fileText[stringNum] == '\n') {
             stringNum++; posInFile++; posInLine = 1; part.current = part.endOfObject;
         } else if ((part.current == part.endOfObject || part.current == part.endOfLine) && fileText[stringNum] == '}')
             break;
         else {
-            containError = false; throw JsonError("incorrect object", part.current, posInFile, posInLine);
+            containError = true; throw JsonError("incorrect object ", part.current, posInFile, posInLine);
         }
     }
 }
 
 void JsonChecker::checkArray(const std::string& fileText)
 {
-    if (containError != false) {
+    if (containError == false) {
         stringNum++;
         posInLine++;
         bool expectValue = true;
@@ -168,9 +163,10 @@ void JsonChecker::checkArray(const std::string& fileText)
         else {
             stringNum++;
             posInLine++;
+            return;
         }
     }
-    if (containError == true) {
+    if (containError == false){
         stringNum++;
         posInLine++;
     }
@@ -195,24 +191,24 @@ void JsonChecker::arrayError(const std::string& fileText, bool expectValue)
         } else if (expectValue && correctSymbols.find(fileText[stringNum]) != std::string::npos) {
             checkNumber(fileText); expectValue = false;
         } else if (expectValue && (fileText[stringNum] == ',' || fileText[stringNum] == ']')) {
-            containError = false; throw JsonError ("incorrect array", "array element", posInFile, posInLine);
+            containError = true; throw JsonError ("incorrect array", "array element", posInFile, posInLine);
         } else if (!expectValue && fileText[stringNum] != ',') {
-            containError = false; throw JsonError("incorrect array", "\",\"", posInFile, posInLine);
+            containError = true; throw JsonError("incorrect array", "\",\"", posInFile, posInLine);
         } else {
-            containError = false; throw JsonError("incorrect array", "end of array", posInFile, posInLine);
+            containError = true; throw JsonError("incorrect array", "end of array", posInFile, posInLine);
         }
     }
 }
 
-void JsonChecker::skipEmpty(const std::string& fileText) {
+void JsonChecker::skipEmpty(const std::string& fileText)
+{
     while (fileText[stringNum] == ' ' || fileText[stringNum] == '\n' || fileText[stringNum] == '\t') {
         if (fileText[stringNum] == '\n') {
             posInFile++;
             posInLine = 1;
         }
-        else {
+        else
             posInLine++;
-        }
         stringNum++;
     }
 }

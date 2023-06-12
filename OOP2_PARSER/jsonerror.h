@@ -19,14 +19,14 @@ private:
     mutable std::string errorMessage;
     std::string errorType;
     std::string expectedString;
-    int numInCols;
-    int numInRows;
+    int posInFile;
+    int posInLine;
 public:
-    JsonError(const std::string& errorType, std::string expecredString, const int numInCols, const int numInRows):
-        errorType {errorType}, expectedString {expectedString}, numInCols {numInCols}, numInRows {numInRows} {}
+    JsonError(const std::string& errorType, std::string expectedString, const int posInFile, const int posInLine):
+        errorType {errorType}, expectedString {expectedString}, posInFile {posInFile}, posInLine {posInLine} {}
     const char* what() const noexcept final {
-        std::string message = "Error:" + errorType + "in position: " + std::to_string(numInCols) + ", " + std::to_string(numInRows)  + ".\n" +
-                "Expected string: " + expectedString + ". ";
+        std::string message = "Error: " + errorType + " in position: " + std::to_string(posInFile) + ", " + std::to_string(posInLine)  + ".\n" +
+                "Expected: " + expectedString + ". ";
         errorMessage = message;
         return errorMessage.c_str();
     }

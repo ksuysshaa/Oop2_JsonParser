@@ -4,7 +4,6 @@
 #include <memory>
 #include "logic.h"
 
-
 class Facade {
 private:
     FileWorker* fileWorker;
