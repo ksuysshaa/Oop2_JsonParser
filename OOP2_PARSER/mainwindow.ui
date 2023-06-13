@@ -105,9 +105,9 @@
    <widget class="QLabel" name="lblAnswer">
     <property name="geometry">
      <rect>
-      <x>20</x>
+      <x>0</x>
       <y>240</y>
-      <width>261</width>
+      <width>331</width>
       <height>41</height>
      </rect>
     </property>
