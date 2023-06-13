@@ -18,10 +18,10 @@ class ExpectedPart;
 class JsonChecker
 {
 public:
-    JsonChecker(): stringNum(0), posInFile(1), posInLine(1), containError(false), errorMessage("File is correct"){}
+    JsonChecker();
     JsonChecker(const std::string& ft):fileText(ft){}
     void checkJson();
-    std::string error();
+    void rollBack();
 private:
     std::string fileText;
     std::string errorMessage = "File is corrrect";
@@ -44,7 +44,6 @@ class ExpectedPart
 {
 public:
     std::string current;
-public:
     std::string key = "ключ";
     std::string colon = "двоеточие";
     std::string value = "значение";

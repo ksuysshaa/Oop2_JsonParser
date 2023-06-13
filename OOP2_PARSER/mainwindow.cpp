@@ -26,6 +26,7 @@ void MainWindow::on_btnOpenFile_clicked()
     else {
         FileWorker file(filePath);
         Facade facade(&file, nullptr);
+        ui->lblFilePath->setText(QString::fromStdString(filePath));
         textFile = facade.readOperation();
         ui->plainTextEdit->setPlainText(QString::fromStdString(textFile));
     }
@@ -39,6 +40,7 @@ void MainWindow::on_btnCheckFile_clicked()
         facade.checkOperation();
         std::string message = "File is correct!";
         ui->lblAnswer->setText(QString::fromStdString(message));
+//        facade.rollBack();
     } catch (JsonError& error) {
         const char* jsonError = error.what();
         ui->lblAnswer->setText(jsonError);

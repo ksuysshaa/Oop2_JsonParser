@@ -5,6 +5,20 @@
 #define SPECIAL_TYPE_ERROR "incorrect special type"
 #define NUMBER_ERROR "incorrect number"
 
+//JsonChecker::JsonChecker()
+//{
+//    rollBack();
+//}
+
+//void JsonChecker::rollBack()
+//{
+//    this->stringNum = 0;
+//    this->posInFile = 1;
+//    this->posInLine = 1;
+//    this->containError = false;
+//    errorMessage = "File is correct!";
+//}
+
 std::string FileWorker::getTextFile()
 {
     std::ifstream file;
