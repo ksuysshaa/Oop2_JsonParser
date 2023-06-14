@@ -10,7 +10,7 @@ private:
     JsonChecker* jsonCheker;
 public:
     Facade(FileWorker* file = nullptr, JsonChecker* checker = nullptr):fileWorker(file), jsonCheker(checker){}
-    ~Facade();
+    ~Facade(){}
     std::string filePath;
     std::string readOperation();
     void checkOperation();
