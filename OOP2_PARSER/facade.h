@@ -4,23 +4,16 @@
 #include <memory>
 #include "logic.h"
 
-class Facade
-{
+class Facade {
 private:
     FileWorker* fileWorker;
-    JsonChecker* jsonChecker;
+    JsonChecker* jsonCheker;
 public:
-    Facade(FileWorker* file = nullptr, JsonChecker* checker = nullptr):fileWorker(file), jsonChecker(checker){}
-    ~Facade() {
-        if (fileWorker != nullptr)
-            delete fileWorker;
-        if (jsonChecker != nullptr)
-            delete jsonChecker;
-    }
+    Facade(FileWorker* file = nullptr, JsonChecker* checker = nullptr):fileWorker(file), jsonCheker(checker){}
+    ~Facade();
     std::string filePath;
     std::string readOperation();
     void checkOperation();
-    void rollBack() {jsonChecker->rollBack();}
 };
 
 #endif // FACADE_H

@@ -8,5 +8,6 @@ std::string Facade::readOperation()
 
 void Facade::checkOperation()
 {
-    jsonChecker->checkJson();
+    jsonCheker->checkJson();
 }
+

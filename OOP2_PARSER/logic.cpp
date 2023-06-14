@@ -5,20 +5,6 @@
 #define SPECIAL_TYPE_ERROR "incorrect special type"
 #define NUMBER_ERROR "incorrect number"
 
-//JsonChecker::JsonChecker()
-//{
-//    rollBack();
-//}
-
-//void JsonChecker::rollBack()
-//{
-//    this->stringNum = 0;
-//    this->posInFile = 1;
-//    this->posInLine = 1;
-//    this->containError = false;
-//    errorMessage = "File is correct!";
-//}
-
 std::string FileWorker::getTextFile()
 {
     std::ifstream file;
@@ -121,18 +107,22 @@ void JsonChecker::checkNumber(const std::string& fileText)
 
 void JsonChecker::checkObject(const std::string& fileText)
 {
-    if (containError == false) {
+    if (containError != true) {
         stringNum++;
         skipEmpty(fileText);
         ExpectedPart part;
         part.current = part.key;
-        if (fileText[stringNum] != '}')
+        if (fileText[stringNum] == '}') {
+            stringNum++;
+            posInLine++;
+        } else {
             objectError(fileText, part);
+            if (containError != true) {
+                stringNum++;
+                posInLine++;
+            }
+        }
     }
-    if (containError == true)
-        return;
-    stringNum++;
-    posInLine++;
 }
 
 void JsonChecker::objectError(const std::string& fileText, ExpectedPart part)
@@ -167,22 +157,21 @@ void JsonChecker::objectError(const std::string& fileText, ExpectedPart part)
 
 void JsonChecker::checkArray(const std::string& fileText)
 {
-    if (containError == false) {
+    if (containError != true) {
         stringNum++;
         posInLine++;
         bool expectValue = true;
         skipEmpty(fileText);
-        if (fileText[stringNum] != ']')
-            arrayError(fileText, expectValue);
-        else {
+        if (fileText[stringNum] == ']') {
             stringNum++;
             posInLine++;
-            return;
+        } else {
+            arrayError(fileText, expectValue);
+            if (containError == false){
+                stringNum++;
+                posInLine++;
+            }
         }
-    }
-    if (containError == false){
-        stringNum++;
-        posInLine++;
     }
 }
 

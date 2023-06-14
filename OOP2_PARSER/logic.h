@@ -21,10 +21,10 @@ public:
     JsonChecker();
     JsonChecker(const std::string& ft):fileText(ft){}
     void checkJson();
-    void rollBack();
+    std::string error();
 private:
     std::string fileText;
-    std::string errorMessage = "File is corrrect";
+    std::string errorMessage;
     std::string correctSymbols = "-.0123456789";
     int stringNum = 0;
     int posInFile = 1;
@@ -44,7 +44,8 @@ class ExpectedPart
 {
 public:
     std::string current;
-    std::string key = "ключ";
+public:
+    std::string key = "]";
     std::string colon = "двоеточие";
     std::string value = "значение";
     std::string endOfLine = ",";
